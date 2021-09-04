@@ -1,11 +1,11 @@
 import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from "typeorm";
 
 // use class -  as can't use instanceof / typeof with interface
-class ProductShipped {
+export class ProductShipped {
   quantity: number;
 }
 
-class ProductReceived {
+export class ProductReceived {
   quantity: number;
 }
 
@@ -14,18 +14,18 @@ class ProductReceived {
 @Entity()
 export class Inventory extends BaseEntity {
   @PrimaryGeneratedColumn()
-  private id!: number;
+  id!: number;
 
   @Column()
-  private quantityOnHand: number;
+  quantityOnHand: number;
 
-  Load(events: any) {
+  load(events: any) {
     events.forEach((e: any) => {
-      this.Apply(e);
+      this.apply(e);
     });
   }
 
-  Apply(event: ProductShipped | ProductReceived) {
+  apply(event: ProductShipped | ProductReceived) {
     if (event instanceof ProductShipped) {
       this.quantityOnHand -= event.quantity;
     } else if (event instanceof ProductShipped) {
