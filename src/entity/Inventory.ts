@@ -1,12 +1,21 @@
 import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from "typeorm";
+import { PersistedEvent } from "./Event";
 
 // use class -  as can't use instanceof / typeof with interface
 export class ProductShipped {
   quantity: number;
+
+  constructor(quantity: number) {
+    this.quantity = quantity;
+  }
 }
 
 export class ProductReceived {
   quantity: number;
+
+  constructor(quantity: number) {
+    this.quantity = quantity;
+  }
 }
 
 // The property "name" sets the table name. This is usually implied from the
@@ -19,17 +28,22 @@ export class Inventory extends BaseEntity {
   @Column()
   quantityOnHand: number;
 
-  load(events: any) {
+  load(events: PersistedEvent[]) {
     events.forEach((e: any) => {
       this.apply(e);
     });
   }
 
-  apply(event: ProductShipped | ProductReceived) {
-    if (event instanceof ProductShipped) {
-      this.quantityOnHand -= event.quantity;
-    } else if (event instanceof ProductShipped) {
-      this.quantityOnHand += event.quantity;
+  apply(event: PersistedEvent) {
+    if (this.quantityOnHand === null || this.quantityOnHand === undefined) {
+      this.quantityOnHand = 0;
+    }
+
+    let parsedData = JSON.parse(event.data);
+    if (event.eventType == "ProductShipped") {
+      this.quantityOnHand -= parsedData.quantity;
+    } else if (event.eventType == "ProductReceived") {
+      this.quantityOnHand += parsedData.quantity;
     }
   }
 }
